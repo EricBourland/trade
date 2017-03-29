@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\js\app.js" />
+    <Content Include="wwwroot\js\camera.js" />
+    <Content Include="wwwroot\js\draw.js" />
+    <Content Include="wwwroot\js\game.js" />
+    <Content Include="wwwroot\js\init\app.js" />
+    <Content Include="wwwroot\js\init\camera.js" />
+    <Content Include="wwwroot\js\init\draw.js" />
+    <Content Include="wwwroot\js\init\products.js" />
+    <Content Include="wwwroot\js\init\purchase.js" />
+    <Content Include="wwwroot\js\init\sale.js" />
+    <Content Include="wwwroot\js\init\shop.js" />
+    <Content Include="wwwroot\js\init\stop.js" />
+    <Content Include="wwwroot\js\init\trader.js" />
+    <Content Include="wwwroot\js\init\transaction.js" />
+    <Content Include="wwwroot\js\init\ui.js" />
+    <Content Include="wwwroot\js\init\update.js" />
+    <Content Include="wwwroot\js\init\world.js" />
+    <Content Include="wwwroot\js\main.js" />
+    <Content Include="wwwroot\js\shop.js" />
+    <Content Include="wwwroot\js\trade.js" />
+    <Content Include="wwwroot\js\world.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="1.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\" />
+  </ItemGroup>
+
+</Project>
