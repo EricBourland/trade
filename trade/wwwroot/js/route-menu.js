@@ -8,12 +8,13 @@ app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
         this.x = x;
         this.y = y;
 
-        const height = 20;
-        const buttons = new ButtonCollection().click(shop => {
-            _click(shop);
-        });
-        let _click = () => {};
+        let _click = () => { };
 
+        const height = 20;
+        const buttons = new ButtonCollection().click((shop, trades) => {
+            _click(shop, trades);
+        });
+        
         function draw(context, selectedShop) {
             context.fillText("Route", this.x, this.y);
             
@@ -21,7 +22,7 @@ app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
 
             let _y = this.y + 20;
             for (let stop of summary.stops) {
-                const button = buttons.get(stop.shop);
+                const button = buttons.get(stop.shop, stop.trades);
                 button.x = x;
                 button.y = _y - height + 5;
                 button.width = 150;

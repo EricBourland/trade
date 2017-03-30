@@ -1,10 +1,9 @@
-app.run(["TraderMenu", "RouteMenu", function(TraderMenu, RouteMenu) {
-
-    //const addButton = new Button("Add", 420, 40, 60, 20).click(() => console.log("idk"));
+app.run(["TraderMenu", "RouteMenu", "TransactionMenu", function(TraderMenu, RouteMenu, TransactionMenu) {
 
     const traders = new TraderMenu(15, 50).click(select);
     let _deselect = false;
-    let routes = null;
+    let stops = null;
+    let trades = null;
     let selectedTrader = null;
     let selectedShop = null;
 
@@ -18,8 +17,12 @@ app.run(["TraderMenu", "RouteMenu", function(TraderMenu, RouteMenu) {
             
             traders.draw(context, selectedTrader);
 
-            if (routes) {
-                routes.draw(context, selectedShop);
+            if (stops) {
+                stops.draw(context, selectedShop);
+            }
+
+            if (trades){
+                trades.draw(context);
             }
             
             context.restore();
@@ -33,40 +36,20 @@ app.run(["TraderMenu", "RouteMenu", function(TraderMenu, RouteMenu) {
 
     function select(trader){
         _deselect = false;
-        routes = new RouteMenu(200, 25, trader).click(selectShop);
+        stops = new RouteMenu(200, 25, trader).click(selectStop);
         selectedTrader = trader;
     }
 
-    function selectShop(shop){
+    function selectStop(shop, transaction) {
         _deselect = false;
+        trades = new TransactionMenu(365, 25, transaction);
         selectedShop = shop;
     }
 
     function deselect(){
         selectedTrader = null;
         selectedShop = null;
-        routes = null;
-    }
-
-    function drawTransactionMenu(context, stop){
-        const x = 300;
-        context.save();
-        context.font = "18px sans-serif";
-        context.fillText("Transactions", x, 25);
-        context.restore();
-        
-        const h = 20;
-        let y = 46;
-        for (let trade of stop.trades){
-            context.fillText(trade.verb + " " + trade.name + " for " + trade.price + "b", x, y);
-            y += h;
-        }
-
-        drawAddButton(context, y);
-    }
-
-    function drawAddButton(context, y) {
-        //addButton.y = y;
-        //addButton.draw(context);
+        stops = null;
+        trades = null;
     }
 }]);

@@ -9,13 +9,13 @@
 
         let _click = () => {};
 
-        function get(item) {
+        function get(item, data) {
             let button = buttons.find(b => b.item === item);
             if (!button) {
                 button = { button: new Button(), item: item };
                 Object.assign(button.button.styles, styles);
-                button.button.click(function(){
-                    _click(item);
+                button.button.click(function () {
+                    _click(item, data);
                 });
                 buttons.push(button);
             }

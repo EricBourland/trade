@@ -24,7 +24,9 @@
     <Content Include="wwwroot\js\stop.js" />
     <Content Include="wwwroot\js\trader-menu.js" />
     <Content Include="wwwroot\js\trader.js" />
+    <Content Include="wwwroot\js\transaction-menu.js" />
     <Content Include="wwwroot\js\transaction.js" />
+    <Content Include="wwwroot\js\TransactionMenu.js" />
     <Content Include="wwwroot\js\ui.js" />
     <Content Include="wwwroot\js\update.js" />
   </ItemGroup>
