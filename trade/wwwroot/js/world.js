@@ -7,8 +7,8 @@ app.run(["Shop", "Trader", "Purchase", "Sale", function(Shop, Trader, Purchase, 
     shops.push(new Shop(645, 160, "Nick's Knacks", 20));
 
     shops[0].stock(app.products[0], 2, 5, 20);
-    shops[0].order(app.products[1], 2);
-    shops[1].stock(app.products[1], 1, 15, 60);
+    shops[0].order(app.products[1], 5);
+    shops[1].stock(app.products[1], 3, 15, 60);
     shops[1].order(app.products[0], 3);
 
     traders.push(new Trader(100, 50, "TR-995"));

@@ -1,24 +1,27 @@
-(function (app) {
-    app.Shop = Shop;
+app.register("Shop", ["Inventory", function (Inventory) {
+    return Shop;
 
     function Shop(x, y, name, bits) {
 
+        this.name = name;
         this.draw = draw;
         this.update = update;
         this.stock = stock;
         this.order = order;
-        this.sell = sell;
-        this.buy = buy;
-        this.directions = directions;
         this.supply = supply;
-        this.demand = demand;
+        this.directions = directions;
+        this.snapshot = snapshot;
+        this.accept = accept;
+        this.prices = prices;
+        
+        this.orders = {};
         
         const size = 24;
         const fillStyle = "#64b5f6";
         const textStyle = "#444";
         const font = "14px sans-serif";
-        const inventory = {};
-        const orders = {};
+        const inventory = new Inventory();
+        const restock = {};
 
         function draw(context) {
             context.save();
@@ -35,15 +38,16 @@
         }
 
         function update(dt) {
-            for (let stock of Object.values(inventory)) {
-                if (stock.interval === 0) {
+            for (let item of Object.values(restock)) {
+                if (!item.interval) {
                     continue;
                 }
-                stock.timer += dt;
-                if (stock.timer > stock.interval) {
-                    stock.timer = 0;
-                    if (stock.quantity < stock.restock) {
-                        stock.quantity = stock.restock;
+                item.timer += dt;
+                if (item.timer > item.interval) {
+                    item.timer = 0;
+                    const current = inventory.get(item);
+                    if (current.quantity < item.quantity) {
+                        inventory.setQuantity(current.product, item.quantity);
                     }
                 }
             }
@@ -65,59 +69,59 @@
             };
         }
 
+        function supply(product){
+            return inventory.get(product);
+        }
+
         function stock(product, price, quantity, seconds) {
             if (!seconds) {
                 seconds = 0;
             }
-            inventory[product.id] = {
-                product: product,
-                price: price,
-                quantity: quantity,
-                restock: quantity,
+            restock[product.id] = {
+                id: product.id,
                 interval: seconds * 1000,
+                quantity: quantity,
                 timer: 0
             };
+            inventory.add(product, quantity, price);
         }
 
         function order(product, price) {
-            orders[product.id] = {
+            this.orders[product.id] = {
                 product: product,
                 price: price
             };
         }
 
-        function buy(receipt) {
-            const stocked = inventory[receipt.product.id];
-            if (stocked){
-                stocked.quantity += receipt.quantity;
-            }
-            bits -= receipt.total;
-        }
-
-        function sell(product, quantity) {
-            const stocked = inventory[product.id];
-            const price = stocked.price * quantity;
-            stocked.quantity -= quantity;
-            bits -= price;
-
+        function snapshot(){
             return {
-                quantity: quantity,
-                product: product,
-                total: price
+                bits: bits,
+                inventory: inventory.snapshot()
             };
         }
 
-        function supply(product) {
-            return inventory[product.id];
+        function accept(snapshot){
+            bits = snapshot.bits;
+            inventory.copy(snapshot.inventory);
         }
 
-        function demand(product, balance) {
-            const ordered = orders[product.id];
-            const quantity = Math.floor(bits / ordered.price);
+        function prices(product){
+            const purchase = inventory.get(product);
+            const sale = this.orders[product.id];
+            
+            let buy, sell;
+            if (purchase && purchase.price){
+                buy = purchase.price;
+            }
+
+            if (sale && sale.price){
+                sell = sale.price;
+            }
+
             return {
-                quantity: quantity,
-                price: ordered.price
+                buy: buy,
+                sell: sell
             };
         }
     }
-})(app);
+}]);

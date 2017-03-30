@@ -1,4 +1,4 @@
-app.register("Trader", ["Stop", function(Stop) {
+app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
     return Trader;
     
     function Trader(x, y, name) {
@@ -7,21 +7,19 @@ app.register("Trader", ["Stop", function(Stop) {
         this.update = update;
         this.addStop = addStop;
         this.supply = supply;
-        this.demand = demand;
-        this.buy = buy;
-        this.sell = sell;
         this.summary = summary;
+        this.snapshot = snapshot;
+        this.accept = accept;
 
         this.name = name;
         this.acceleration = 0.0001;
         this.maxSpeed = 0.1;
         this.transactionTime = 3000;
         this.maxWeight = 5;
-        
-        const fillStyle = "#bbddbb";
+
         const size = 10;
         const route = [];
-        const inventory = {};
+        const inventory = new Inventory();
         let destination = null;
         let currentStop = null;
         let nextStop = 0;
@@ -31,7 +29,7 @@ app.register("Trader", ["Stop", function(Stop) {
 
         function draw(context) {
             context.save();
-            context.fillStyle = fillStyle;
+            context.fillStyle = getStyle();
             context.beginPath();
             context.arc(x, y, size, 0, Math.PI * 2);
             context.fill();
@@ -67,9 +65,10 @@ app.register("Trader", ["Stop", function(Stop) {
                     speed *= dir.distance / threshold;
                 }
 
-                const dragThreshold = (2 * this.maxWeight) / 3;
+                const dragThreshold = (3 * this.maxWeight) / 5;
+                const dragFactor = 0.2;
 
-                const drag = Math.max(1 - (Math.max(weight - dragThreshold, 0) / (this.maxWeight - dragThreshold)), 0.2);
+                const drag = 1 - ((Math.max(weight - dragThreshold, 0) / (this.maxWeight - dragThreshold)) * dragFactor);
 
                 x += dir.dx * dt * speed * drag;
                 y += dir.dy * dt * speed * drag;
@@ -105,53 +104,18 @@ app.register("Trader", ["Stop", function(Stop) {
             const agreement = transaction.negotiate(trader, currentStop.shop);
             if (!agreement.success){
                 currentTransactionTime = 0;
+                trader.blocked = true;
                 return; 
             }
-            transaction.commit(trader, shop, agreement)
-            
-            trader.trading = false;
+
+            transaction.commit(trader, shop, agreement);
             destination = route[nextStop];
-        }
-
-        function buy(receipt) {
-            if (!inventory[receipt.product.id]) {
-                inventory[receipt.product.id] = { product: receipt.product, quantity: 0 };
-            }
-
-            const stocked = inventory[receipt.product.id];
-
-            stocked.quantity += receipt.quantity;
-            app.bits -= receipt.total;
-            weight += receipt.quantity * receipt.product.weight;
-        }
-
-        function sell(product, quantity, price) {
-            const stocked = inventory[product.id];
-            const total = quantity * price;
-            
-            stocked.quantity -= quantity;
-            app.bits += total;
-            weight -= quantity * product.weight;
-
-            return {
-                quantity: quantity,
-                product: product,
-                total: total
-            };
-        }
-
-        function demand(available, balance) {
-            const byPrice = (app.bits - balance.total) / available.price;
-            const byWeight = (this.maxWeight - weight + balance.weight) / available.product.weight;
-
-            return Math.floor(Math.min(byPrice, byWeight));
+            trader.trading = false;
+            trader.blocked = false;
         }
 
         function supply(product) {
-            const cargo = inventory[product.id];
-            if (!cargo){
-                return 0;
-            }
+            const cargo = inventory.get(product);
             return cargo.quantity;
         }
 
@@ -160,7 +124,43 @@ app.register("Trader", ["Stop", function(Stop) {
                 name: name,
                 weight: weight,
                 capacity: weight / trader.maxWeight,
+                inventory: inventory,
+                fillStyle: getStyle(),
+                stops: getStops()
             };
+        }
+
+        function getStops(){
+            return route.map(r => {
+                return {
+                    name: r.shop.name,
+                    trades: r.transaction.getTrades(r.shop)
+                }
+            });
+        }
+
+        function snapshot() {
+            return {
+                bits: app.bits,
+                inventory: inventory.snapshot(),
+                weight: weight
+            };
+        }
+
+        function accept(snapshot){
+            app.bits = snapshot.bits;
+            weight = snapshot.weight;
+            inventory.copy(snapshot.inventory);
+        }
+
+        function getStyle() {
+            if (trader.blocked) {
+                return "#c62828";
+            }
+            if (trader.trading) {
+                return "#ffd54f";
+            }
+            return "#bbddbb";
         }
     }
 }]);
