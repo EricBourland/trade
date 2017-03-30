@@ -3,8 +3,10 @@ app.run(["TraderMenu", "RouteMenu", function(TraderMenu, RouteMenu) {
     //const addButton = new Button("Add", 420, 40, 60, 20).click(() => console.log("idk"));
 
     const traders = new TraderMenu(15, 50).click(select);
-    let routes = new RouteMenu(200, 25);
-    let deselect = false;
+    let _deselect = false;
+    let routes = null;
+    let selectedTrader = null;
+    let selectedShop = null;
 
     app.ui = {
         draw: function (context) {
@@ -14,41 +16,36 @@ app.run(["TraderMenu", "RouteMenu", function(TraderMenu, RouteMenu) {
             const str = app.bits + "b";
             context.fillText(str, 10, 25);
             
-            const selected = app.ui.selected;
-            traders.draw(context, selected);
+            traders.draw(context, selectedTrader);
 
-            if (selected){
-                drawRouteMenu(context, selected.summary());
+            if (routes) {
+                routes.draw(context, selectedShop);
             }
             
             context.restore();
 
-            if (deselect && !app.mouse.down){
-                app.ui.selected = null;
+            if (_deselect && !app.mouse.down){
+                deselect();
             }
-            deselect = app.mouse.down;
+            _deselect = app.mouse.down;
         }
     };
 
     function select(trader){
-        deselect = false;
-        app.ui.selected = trader;
-
+        _deselect = false;
+        routes = new RouteMenu(200, 25, trader).click(selectShop);
+        selectedTrader = trader;
     }
 
-    function drawRouteMenu(context, trader){
-        const x = 200;
-        context.fillText("Route", x, 25);
-        context.font = "14px sans-serif";
-        const h = 20;
-        let y = 46;
-        for (let stp of trader.stops) {
-            context.fillText(stp.name, x, y);
-            y += h;
-        }
+    function selectShop(shop){
+        _deselect = false;
+        selectedShop = shop;
+    }
 
-        const selected = trader.stops[0];
-        drawTransactionMenu(context, selected);
+    function deselect(){
+        selectedTrader = null;
+        selectedShop = null;
+        routes = null;
     }
 
     function drawTransactionMenu(context, stop){

@@ -1,4 +1,4 @@
-app.register("TraderMenu", [function() {
+app.register("TraderMenu", ["ButtonCollection", function(ButtonCollection) {
     return TraderMenu;
 
     function TraderMenu(x, y) {
@@ -8,7 +8,10 @@ app.register("TraderMenu", [function() {
         this.x = x;
         this.y = y;
 
-        const buttons = [];
+        const buttons = new ButtonCollection().click(function(trader){
+            _click(trader);
+        });
+        
         const height = 20;
 
         let _click = () => {};
@@ -21,7 +24,7 @@ app.register("TraderMenu", [function() {
                 const s = summary.name + " " + percent + "%";
 
                 drawButton(context, trader, selected);
-
+                
                 context.fillStyle = summary.fillStyle;
                 context.beginPath();
                 context.arc(x + 10, y - 8, 8, 0, Math.PI * 2);
@@ -35,52 +38,18 @@ app.register("TraderMenu", [function() {
         }
 
         function drawButton(context, trader, selected) {
-            const button = getButton(trader);
-
-            context.beginPath();
-            context.rect(x, y - height + 2, 170, height);
-            if (context.isPointInPath(app.mouse.offsetX, app.mouse.offsetY)){
-                if (app.mouse.down){
-                    if (button.hovering){
-                        button.hovering = false;
-                        button.pressed = true;
-                    }
-                }
-                else {
-                    button.hovering = true;
-                    if (button.pressed){
-                        _click(trader);
-                        button.pressed = false;
-                    }
-                }
+            const button = buttons.get(trader);
+            button.x = x;
+            button.y = y - height + 2;
+            button.width = 170;
+            button.height = height;
+            button.styles.fillStyle = null;
+            if (trader === selected){
+                button.styles.fillStyle = "#eee";
             }
-            else {
-                button.hovering = false;
-                button.pressed = false;
-            }
-
-            let fillStyle = null;
-            if (button.hovering || trader === selected){
-                fillStyle = "#eee";
-            }
-            if (button.pressed){
-                fillStyle = "#ddd";
-            }
-            if (fillStyle !== null){
-                context.fillStyle = fillStyle;
-                context.fill();
-            }
+            button.draw(context);
         }
-
-        function getButton(trader){
-            let button = buttons.find(b => b.trader === trader);
-            if (button === undefined) {
-                button = {trader: trader, button: {}};
-                buttons.push(button);
-            }
-            return button.button;
-        }
-
+        
         function click(callback){
             _click = callback;
             return this;

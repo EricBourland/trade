@@ -133,6 +133,7 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
         function getStops(){
             return route.map(r => {
                 return {
+                    shop: r.shop,
                     name: r.shop.name,
                     trades: r.transaction.getTrades(r.shop)
                 }

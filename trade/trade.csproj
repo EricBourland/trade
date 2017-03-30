@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Content Include="wwwroot\js\app.js" />
+    <Content Include="wwwroot\js\button-collection.js" />
     <Content Include="wwwroot\js\button.js" />
     <Content Include="wwwroot\js\camera.js" />
     <Content Include="wwwroot\js\draw.js" />
@@ -17,6 +18,7 @@
     <Content Include="wwwroot\js\inventory.js" />
     <Content Include="wwwroot\js\products.js" />
     <Content Include="wwwroot\js\purchase.js" />
+    <Content Include="wwwroot\js\route-menu.js" />
     <Content Include="wwwroot\js\sale.js" />
     <Content Include="wwwroot\js\shop.js" />
     <Content Include="wwwroot\js\stop.js" />

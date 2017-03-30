@@ -1,4 +1,4 @@
-app.register("Button", [function() {
+﻿app.register("Button", [function() {
     return Button;
 
     function Button(text, x, y, width, height, styles) {
@@ -14,9 +14,9 @@ app.register("Button", [function() {
         this.width = width;
         this.height = height;
         this.styles = Object.assign({
-            fillStyle: "#333",
-            hoverFillStyle: "#666",
-            pressFillStyle: "#777",
+            fillStyle: null,
+            hoverFillStyle: "#eee",
+            pressFillStyle: "#ddd",
             fontSize: 14,
             fontFamily: "sans-serif",
             textFillStyle: "#77dd77"
@@ -53,22 +53,28 @@ app.register("Button", [function() {
                 this.hovering = this.pressed = false;
             }
 
+            let fillStyle = null;
             if (this.idle){
-                context.fillStyle = this.styles.fillStyle;
+                fillStyle = this.styles.fillStyle;
             }
             else if (this.hovering){
-                context.fillStyle = this.styles.hoverFillStyle;
+                fillStyle = this.styles.hoverFillStyle;
             }
             else if (this.pressed){
-                context.fillStyle = this.styles.pressFillStyle;
+                fillStyle = this.styles.pressFillStyle;
             }
 
-            context.fill();
+            if (fillStyle){
+                context.fillStyle = fillStyle;
+                context.fill();
+            }
 
-            const measure = context.measureText(this.text);
-            context.font = this.styles.fontSize + "px " + this.styles.fontFamily;
-            context.fillStyle = this.styles.textFillStyle;
-            context.fillText(this.text, this.x + (this.width - measure.width) / 2, this.y + (this.height + this.styles.fontSize) / 2.2);
+            if (this.text){
+                const measure = context.measureText(this.text);
+                context.font = this.styles.fontSize + "px " + this.styles.fontFamily;
+                context.fillStyle = this.styles.textFillStyle;
+                context.fillText(this.text, this.x + (this.width - measure.width) / 2, this.y + (this.height + this.styles.fontSize) / 2.2);
+            }
         }
     }
 }]);
