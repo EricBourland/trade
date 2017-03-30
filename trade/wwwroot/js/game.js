@@ -13,7 +13,6 @@
         const time = new Date();
         const dt = Math.min(time - app.time, 200);
         app.time = time;
-
         app.update(dt);
         app.draw(dt);
     }

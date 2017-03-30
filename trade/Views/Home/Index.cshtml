@@ -8,7 +8,8 @@
 <body>
 <canvas id="trade"></canvas>
 <script asp-src-include="~/lib/**/*.min.js"></script>
-<script asp-src-include="~/js/init/*.js"></script>
+<script src="~/js/app.js"></script>
+<script asp-src-include="~/js/**/*.js" asp-src-exclude="~/js/app.js,~/js/world.js,~/js/game.js"></script>
 <script src="~/js/world.js"></script>
 <script src="~/js/game.js"></script>
 </body>

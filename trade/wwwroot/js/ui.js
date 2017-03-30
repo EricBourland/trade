@@ -1,4 +1,11 @@
-(function(app) {
+app.run(["TraderMenu", "RouteMenu", function(TraderMenu, RouteMenu) {
+
+    //const addButton = new Button("Add", 420, 40, 60, 20).click(() => console.log("idk"));
+
+    const traders = new TraderMenu(15, 50).click(select);
+    let routes = new RouteMenu(200, 25);
+    let deselect = false;
+
     app.ui = {
         draw: function (context) {
             context.save();
@@ -7,29 +14,27 @@
             const str = app.bits + "b";
             context.fillText(str, 10, 25);
             
-            const h = 16;
-            let y = 50;
-            for (let trader of app.traders) {
-                const summary = trader.summary();
-                const percent = Math.round(100 * summary.capacity);
-                const s = summary.name + " " + percent + "%";
-                
-                context.fillStyle = summary.fillStyle;
-                context.beginPath();
-                context.arc(15, y - 6, 8, 0, Math.PI*2);
-                context.fill();
+            const selected = app.ui.selected;
+            traders.draw(context, selected);
 
-                context.fillStyle = "#444";
-                context.fillText(s, 25, y);
-                y += h;
+            if (selected){
+                drawRouteMenu(context, selected.summary());
             }
-
-            const selected = app.traders[0].summary();
-            drawRouteMenu(context, selected);
-
+            
             context.restore();
+
+            if (deselect && !app.mouse.down){
+                app.ui.selected = null;
+            }
+            deselect = app.mouse.down;
         }
     };
+
+    function select(trader){
+        deselect = false;
+        app.ui.selected = trader;
+
+    }
 
     function drawRouteMenu(context, trader){
         const x = 200;
@@ -59,5 +64,12 @@
             context.fillText(trade.verb + " " + trade.name + " for " + trade.price + "b", x, y);
             y += h;
         }
+
+        drawAddButton(context, y);
     }
-})(app);
+
+    function drawAddButton(context, y) {
+        //addButton.y = y;
+        //addButton.draw(context);
+    }
+}]);
