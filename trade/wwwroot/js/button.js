@@ -1,4 +1,4 @@
-﻿app.register("Button", [function() {
+app.register("Button", [function() {
     return Button;
 
     function Button(text, x, y, width, height, styles) {
@@ -13,13 +13,14 @@
         this.y = y;
         this.width = width;
         this.height = height;
+        this.textOffset = 0;
         this.styles = Object.assign({
             fillStyle: null,
             hoverFillStyle: "#eee",
             pressFillStyle: "#ddd",
             fontSize: 14,
             fontFamily: "sans-serif",
-            textFillStyle: "#77dd77"
+            textFillStyle: "#444"
         }, styles);
 
         let _click = () => {};
@@ -73,7 +74,7 @@
                 const measure = context.measureText(this.text);
                 context.font = this.styles.fontSize + "px " + this.styles.fontFamily;
                 context.fillStyle = this.styles.textFillStyle;
-                context.fillText(this.text, this.x + (this.width - measure.width) / 2, this.y + (this.height + this.styles.fontSize) / 2.2);
+                context.fillText(this.text, this.x + this.textOffset + (this.width - measure.width) / 2, this.y + (this.height + this.styles.fontSize) / 2.2);
             }
         }
     }

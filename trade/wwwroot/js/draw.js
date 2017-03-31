@@ -4,6 +4,11 @@
     canvas.height = canvas.parentElement.offsetHeight;
     const context = canvas.getContext("2d");
 
+    window.onresize = function(){
+        canvas.width = canvas.parentElement.offsetWidth;
+        canvas.height = canvas.parentElement.offsetHeight;
+    };
+
     app.draw = draw;
 
     function draw() {

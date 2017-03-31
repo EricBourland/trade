@@ -10,6 +10,7 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
         this.summary = summary;
         this.snapshot = snapshot;
         this.accept = accept;
+        this.cargo = cargo;
 
         this.name = name;
         this.acceleration = 0.0001;
@@ -130,12 +131,13 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
             };
         }
 
-        function getStops(){
+        function getStops() {
             return route.map(r => {
                 return {
                     shop: r.shop,
                     name: r.shop.name,
-                    trades: r.transaction.getTrades(r.shop)
+                    transaction: r.transaction,
+                    trades: r.transaction.getTradeSummary(r.shop)
                 }
             });
         }
@@ -146,6 +148,10 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
                 inventory: inventory.snapshot(),
                 weight: weight
             };
+        }
+
+        function cargo() {
+            return inventory.all();
         }
 
         function accept(snapshot){

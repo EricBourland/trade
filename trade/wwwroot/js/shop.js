@@ -13,6 +13,9 @@ app.register("Shop", ["Inventory", function (Inventory) {
         this.snapshot = snapshot;
         this.accept = accept;
         this.prices = prices;
+        this.listing = listing;
+        this.getPurchaseProduct = getPurchaseProduct;
+        this.getSaleProduct = getSaleProduct;
         
         this.orders = {};
         
@@ -122,6 +125,20 @@ app.register("Shop", ["Inventory", function (Inventory) {
                 buy: buy,
                 sell: sell
             };
+        }
+
+        function listing() {
+            const wanted = Object.values(this.orders);
+            const current = inventory.all().filter(c => !wanted.find(w => w.product === c.product)); 
+            return wanted.concat(current);
+        }
+
+        function getPurchaseProduct() {
+            return inventory.all()[0].product;
+        }
+
+        function getSaleProduct() {
+            return Object.values(this.orders)[0].product;
         }
     }
 }]);

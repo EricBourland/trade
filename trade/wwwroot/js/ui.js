@@ -1,11 +1,16 @@
-app.run(["TraderMenu", "RouteMenu", "TransactionMenu", function(TraderMenu, RouteMenu, TransactionMenu) {
+app.run(["TraderMenu", "CargoMenu", "RouteMenu", "TransactionMenu", "TradeMenu", function(TraderMenu, CargoMenu, RouteMenu, TransactionMenu, TradeMenu) {
 
     const traders = new TraderMenu(15, 50).click(select);
     let _deselect = false;
+    let cargo = null;
     let stops = null;
+    let trade = null;
     let trades = null;
+
     let selectedTrader = null;
     let selectedShop = null;
+    let selectedTransaction = null;
+    let selectedTrade = null;
 
     app.ui = {
         draw: function (context) {
@@ -17,12 +22,18 @@ app.run(["TraderMenu", "RouteMenu", "TransactionMenu", function(TraderMenu, Rout
             
             traders.draw(context, selectedTrader);
 
-            if (stops) {
+            if (selectedTrader) {
                 stops.draw(context, selectedShop);
+                cargo.y = stops.height + stops.y + 10;
+                cargo.draw(context);                
             }
 
             if (trades){
-                trades.draw(context);
+                trades.draw(context, selectedTrade);
+            }
+
+            if (trade) {
+                trade.draw(context);
             }
             
             context.restore();
@@ -36,14 +47,28 @@ app.run(["TraderMenu", "RouteMenu", "TransactionMenu", function(TraderMenu, Rout
 
     function select(trader){
         _deselect = false;
-        stops = new RouteMenu(200, 25, trader).click(selectStop);
+        cargo = new CargoMenu(200, 25, trader);
+        stops = new RouteMenu(200, 25, trader).click(selectShop);
         selectedTrader = trader;
     }
 
-    function selectStop(shop, transaction) {
+    function selectShop(shop, _stop) {
         _deselect = false;
-        trades = new TransactionMenu(365, 25, transaction);
+        trades = new TransactionMenu(360, 25, _stop).click(selectTrade);
+        selectedTransaction = _stop.transaction;
         selectedShop = shop;
+        trade = null;
+        selectedTrade = null;
+    }
+
+    function selectTrade(_trade) {
+        _deselect = false;
+        trade = new TradeMenu(520, 25, selectedTrader, selectedShop, selectedTransaction, _trade)
+            .click(() => {
+                _deselect = false;
+            })
+            .setTrade(selectTrade);
+        selectedTrade = _trade;
     }
 
     function deselect(){
@@ -51,5 +76,6 @@ app.run(["TraderMenu", "RouteMenu", "TransactionMenu", function(TraderMenu, Rout
         selectedShop = null;
         stops = null;
         trades = null;
+        trade = null;
     }
 }]);

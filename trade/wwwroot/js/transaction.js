@@ -4,20 +4,25 @@ app.register("Transaction", [function() {
 
     function Transaction() {
         this.addTrade = addTrade;
+        this.remove = remove;
         this.negotiate = negotiate;
         this.commit = commit;
-        this.getTrades = getTrades;
-
-        const trades = [];
+        this.getTradeSummary = getTradeSummary;
+        
+        this.trades = [];
 
         function addTrade(trade) {
-            trades.push(trade);
+            this.trades.push(trade);
             return this;
+        }
+
+        function remove(trade){
+            this.trades.splice(this.trades.indexOf(trade), 1);
         }
 
         function negotiate(trader, shop) {
             const steps = [];
-            for (let trade of trades) {
+            for (let trade of this.trades) {
                 const result = trade.calculate(trader, shop);
                 if (result.success){
                     steps.push({trade: trade, result: result});
@@ -66,8 +71,8 @@ app.register("Transaction", [function() {
             shop.accept(agreement.snapshot.shop);
         }
 
-        function getTrades(shop){
-            return trades.map(t => t.summary(shop));
+        function getTradeSummary(shop){
+            return this.trades.map(t => t.summary(shop));
         }
     }
 }]);

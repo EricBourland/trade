@@ -9,28 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="wwwroot\js\app.js" />
-    <Content Include="wwwroot\js\button-collection.js" />
-    <Content Include="wwwroot\js\button.js" />
-    <Content Include="wwwroot\js\camera.js" />
-    <Content Include="wwwroot\js\draw.js" />
-    <Content Include="wwwroot\js\init\inventory.js" />
-    <Content Include="wwwroot\js\inventory.js" />
-    <Content Include="wwwroot\js\products.js" />
-    <Content Include="wwwroot\js\purchase.js" />
-    <Content Include="wwwroot\js\route-menu.js" />
-    <Content Include="wwwroot\js\sale.js" />
-    <Content Include="wwwroot\js\shop.js" />
-    <Content Include="wwwroot\js\stop.js" />
-    <Content Include="wwwroot\js\trader-menu.js" />
-    <Content Include="wwwroot\js\trader.js" />
-    <Content Include="wwwroot\js\transaction-menu.js" />
-    <Content Include="wwwroot\js\transaction.js" />
-    <Content Include="wwwroot\js\TransactionMenu.js" />
-    <Content Include="wwwroot\js\ui.js" />
-    <Content Include="wwwroot\js\update.js" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />

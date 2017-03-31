@@ -2,17 +2,20 @@
     app.Purchase = Purchase;
 
     function Purchase(product) {
+        const purchase = this;
         this.calculate = calculate;
         this.apply = apply;
         this.adjust = adjust;
         this.summary = summary;
 
+        this.product = product;
+
         function calculate(trader, shop){
-            const supply = shop.supply(product);
+            const supply = shop.supply(this.product);
             const quantity = supply.quantity;
 
             return {
-                weight: product.weight * quantity,
+                weight: this.product.weight * quantity,
                 total: supply.price * quantity,
                 price: supply.price,
                 quantity: quantity,
@@ -23,10 +26,10 @@
         function apply(trader, shop, deal, state) {
             const balance = deal.price * deal.quantity;
             state.shop.bits += balance;
-            state.shop.inventory.subtract(product, deal.quantity);
+            state.shop.inventory.subtract(this.product, deal.quantity);
             state.trader.bits -= balance;
             state.trader.weight += deal.weight;
-            state.trader.inventory.add(product, deal.quantity);
+            state.trader.inventory.add(this.product, deal.quantity);
         }
 
         function adjust(trader, shop, deal, state) {
@@ -38,7 +41,7 @@
             }
 
             if (state.trader.weight > trader.maxWeight){
-                const fix = Math.ceil((state.trader.weight - trader.maxWeight) / product.weight);
+                const fix = Math.ceil((state.trader.weight - trader.maxWeight) / this.product.weight);
                 if (fix <= deal.quantity){
                     alter(deal, fix, state);
                 }
@@ -47,22 +50,22 @@
 
         function alter(deal, fix, state){
             const balance = fix * deal.price;
-            const weightBalance = fix * product.weight;
+            const weightBalance = fix * purchase.product.weight;
             deal.quantity -= fix;
             deal.total -= balance;
             deal.weight -= weightBalance;
             state.shop.bits -= balance;
-            state.shop.inventory.add(product, fix);
+            state.shop.inventory.add(purchase.product, fix);
             state.trader.bits += balance;
             state.trader.weight -= weightBalance; 
-            state.trader.inventory.subtract(product, fix);
+            state.trader.inventory.subtract(purchase.product, fix);
         }
 
         function summary(shop){
             return {
                 verb: "Buy",
-                name: product.name,
-                price: shop.prices(product).buy
+                name: this.product.name,
+                price: shop.prices(this.product).buy
             };
         }
     }
