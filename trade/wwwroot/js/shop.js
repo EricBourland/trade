@@ -14,6 +14,7 @@ app.register("Shop", ["Inventory", function (Inventory) {
         this.accept = accept;
         this.prices = prices;
         this.listing = listing;
+        this.selling = selling;
         this.getPurchaseProduct = getPurchaseProduct;
         this.getSaleProduct = getSaleProduct;
         
@@ -74,6 +75,10 @@ app.register("Shop", ["Inventory", function (Inventory) {
 
         function supply(product){
             return inventory.get(product);
+        }
+
+        function selling(){
+            return inventory.all().filter(i => i.quantity > 0);
         }
 
         function stock(product, price, quantity, seconds) {

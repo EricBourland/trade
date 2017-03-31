@@ -48,7 +48,7 @@ app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", fun
                 products = shop.listing();
             } 
             else if (purchase) {
-                products = trader.cargo();
+                products = shop.selling();
             }
 
             context.font = "14px sans-serif";

@@ -62,10 +62,11 @@
         }
 
         function summary(shop){
+            const prices = shop.prices(this.product);
             return {
                 verb: "Buy",
                 name: this.product.name,
-                price: shop.prices(this.product).buy
+                price: prices.buy || prices.sell
             };
         }
     }

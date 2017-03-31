@@ -20,8 +20,7 @@ app.register("TraderMenu", ["ButtonCollection", function(ButtonCollection) {
             let y = this.y;
             for (let trader of app.traders) {
                 const summary = trader.summary();
-                const percent = Math.round(100 * summary.capacity);
-                const s = summary.name + " " + percent + "%";
+                const percent = Math.round(100 * summary.capacity) + "%";
 
                 drawButton(context, trader, selected);
                 
@@ -31,7 +30,9 @@ app.register("TraderMenu", ["ButtonCollection", function(ButtonCollection) {
                 context.fill();
 
                 context.fillStyle = "#444";
-                context.fillText(s, x + 20, y - 1);
+                context.fillText(summary.name, x + 20, y - 1);
+                const measure = context.measureText(percent);
+                context.fillText(percent, x + 170 - measure.width - 5, y - 1);
                 
                 y += height;
             }

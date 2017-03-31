@@ -151,7 +151,7 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
         }
 
         function cargo() {
-            return inventory.all();
+            return inventory.all().filter(i => i.quantity > 0);
         }
 
         function accept(snapshot){
