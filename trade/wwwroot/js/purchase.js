@@ -7,8 +7,10 @@
         this.apply = apply;
         this.adjust = adjust;
         this.summary = summary;
+        this.getProducts = getProducts;
 
         this.product = product;
+        this.verb = "Buy";
 
         function calculate(trader, shop){
             const supply = shop.supply(this.product);
@@ -63,11 +65,18 @@
 
         function summary(shop){
             const prices = shop.prices(this.product);
+            const name = this.product.name;
+            const price = prices.buy || prices.sell;
             return {
-                verb: "Buy",
-                name: this.product.name,
-                price: prices.buy || prices.sell
+                verb: this.verb,
+                name: name,
+                price: price,
+                description: this.verb + " " + name + " for " + price + "b"
             };
+        }
+
+        function getProducts(trader, shop){
+            return shop.available();
         }
     }
 })(app);

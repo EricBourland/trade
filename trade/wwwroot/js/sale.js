@@ -8,8 +8,10 @@ app.register("Sale", [function() {
         this.apply = apply;
         this.adjust = adjust;
         this.summary = summary;
+        this.getProducts = getProducts;
 
         this.product = product;
+        this.verb = "Sell";
 
         function calculate(trader, shop) {
             const quantity = trader.supply(this.product);
@@ -58,11 +60,18 @@ app.register("Sale", [function() {
 
         function summary(shop){
             const prices = shop.prices(this.product);
+            const price = prices.sell || prices.buy;
+            const name = this.product.name;
             return {
-                verb: "Sell",
-                name: this.product.name,
-                price: prices.sell || prices.buy
+                verb: this.verb,
+                name: name,
+                price: price,
+                description: this.verb + " " + name + " for " + price + "b"
             };
+        }
+
+        function getProducts(trader, shop){
+            return shop.listing();
         }
     }
 }]);

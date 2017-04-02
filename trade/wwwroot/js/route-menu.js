@@ -37,6 +37,16 @@ app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
                 button.width = this.width - 25;
                 button.height = height - 1;
                 button.styles.fillStyle = null;
+                button.styles.strokeStyle = null;
+                if (summary.nextStop && summary.nextStop.shop === stop.shop){
+                    button.styles.strokeStyle = "#ddd";
+                }
+                if (summary.currentStop && summary.currentStop.shop === stop.shop){
+                    button.styles.strokeStyle = "#ffd54f";
+                }
+                if (summary.destination && summary.destination.shop === stop.shop){
+                    button.styles.strokeStyle = "#88cc88";
+                }
                 
                 const removeButton = removeButtons.get(stop.shop);
                 

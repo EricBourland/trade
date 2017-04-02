@@ -65,7 +65,9 @@ app.register("Transaction", [function() {
         }
 
         function valid(state, trader) {
-            return state.shop.bits >= 0 && state.trader.bits >= 0 && state.trader.weight <= trader.maxWeight;
+            return (state.shop.bits == null || state.shop.bits >= 0) && 
+                state.trader.bits >= 0 && 
+                state.trader.weight <= trader.maxWeight;
         }
 
         function snapshot(trader, shop){

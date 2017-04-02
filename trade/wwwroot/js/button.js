@@ -67,6 +67,11 @@ app.register("Button", ["getMouseState", function(getMouseState) {
                 context.fill();
             }
 
+            if (this.styles.strokeStyle){
+                context.strokeStyle = this.styles.strokeStyle;
+                context.stroke();
+            }
+
             if (this.text){
                 context.fillStyle = this.styles.textFillStyle;
                 let x;

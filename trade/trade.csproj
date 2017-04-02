@@ -9,10 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="wwwroot\js\deposit.js" />
     <Content Include="wwwroot\js\get-mouse-state.js" />
+    <Content Include="wwwroot\js\Location.js" />
     <Content Include="wwwroot\js\shop-menu.js" />
     <Content Include="wwwroot\js\table.js" />
     <Content Include="wwwroot\js\trade-post.js" />
+    <Content Include="wwwroot\js\withdrawal.js" />
   </ItemGroup>
 
   <ItemGroup>

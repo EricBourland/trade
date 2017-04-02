@@ -1,4 +1,4 @@
-app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", function(Button, ButtonCollection, Purchase, Sale) {
+app.register("TradeMenu", ["Button", "ButtonCollection", "Shop", "Purchase", "Sale", "Deposit", "Withdrawal", function(Button, ButtonCollection, Shop, Purchase, Sale, Deposit, Withdrawal) {
     return TradeMenu;
     
     function TradeMenu(trader, shop, transaction, trade) {
@@ -15,22 +15,21 @@ app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", fun
         const buttons = new ButtonCollection().click(product => {
             trade.product = product;
         });
-        const buyButton = new Button("Buy", 0, 0, 35, 19).click(buy);
-        const sellButton = new Button("Sell", 0, 0, 35, 19).click(sell);
-
-        const actions = [buyButton, sellButton];
-
-        let sale = false;
-        let purchase = false;
-
-        if (trade instanceof Purchase){
-            purchase = true;
-            buyButton.styles.fillStyle = "#eee";
+        
+        const actions = [];
+        if (shop instanceof Shop) {
+            actions.push(new Button("Buy").click(buy));
+            actions.push(new Button("Sell").click(sell));
+        } else {
+            actions.push(new Button("Deposit").click(deposit));
+            actions.push(new Button("Withdraw").click(withdraw));
         }
 
-        if (trade instanceof Sale){
-            sale = true;
-            sellButton.styles.fillStyle = "#eee";
+        for (let action of actions){
+            action.height = 19;
+            if (trade.verb === action.text){
+                action.styles.fillStyle = "#eee";
+            }
         }
         
         function draw(context) {
@@ -42,16 +41,10 @@ app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", fun
                 action.x = offsetX;
                 action.y = this.y + lineHeight + 5;
                 action.draw(context);
-                offsetX += 45;
+                offsetX += action.width + 10;
             }
             
-            let products = [];
-            if (sale) {
-                products = shop.listing();
-            } 
-            else if (purchase) {
-                products = shop.selling();
-            }
+            let products = trade.getProducts(trader, shop);
 
             context.font = "14px sans-serif";
             let _y = this.y + 3 * lineHeight;
@@ -96,6 +89,24 @@ app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", fun
             const sale = new Sale(product);
             transaction.swap(trade, sale);
             _setTrade(sale);
+        }
+
+        function deposit() {
+            if (trade instanceof Deposit){
+                return;
+            }
+            const _deposit = new Deposit();
+            transaction.swap(trade, _deposit);
+            _setTrade(_deposit);
+        }
+
+        function withdraw(){
+            if (trade instanceof Withdrawal){
+                return;
+            }
+            const withdrawal = new Withdrawal();
+            transaction.swap(trade, withdrawal);
+            _setTrade(withdrawal);
         }
     }
 }]);

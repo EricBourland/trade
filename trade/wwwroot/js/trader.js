@@ -19,6 +19,8 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
         this.maxSpeed = 0.1;
         this.transactionTime = 3000;
         this.maxWeight = 5;
+        this.dragFactor = 0.25;
+        this.dragThreshold = 0.6;
 
         const size = 10;
         const route = [];
@@ -63,8 +65,6 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
                 context.restore();
             }
 
-            
-
             context.beginPath();
             context.arc(x, y, size, 0, Math.PI * 2);
 
@@ -87,7 +87,9 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
             if (this.trading){
                 currentTransactionTime += dt;
                 if (currentTransactionTime > this.transactionTime) {
-                    tryCompleteTransaction();
+                    if (tryCompleteTransaction()){
+                        depart();
+                    }
                 }
             }
             if (destination) {
@@ -112,10 +114,9 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
                     speed *= dir.distance / threshold;
                 }
 
-                const dragThreshold = (3 * this.maxWeight) / 5;
-                const dragFactor = 0.2;
+                const dragWeight = this.dragThreshold * this.maxWeight;
 
-                const drag = 1 - ((Math.max(weight - dragThreshold, 0) / (this.maxWeight - dragThreshold)) * dragFactor);
+                const drag = 1 - ((Math.max(weight - dragWeight, 0) / (this.maxWeight - dragWeight)) * this.dragFactor);
 
                 x += dir.dx * dt * speed * drag;
                 y += dir.dy * dt * speed * drag;
@@ -139,7 +140,7 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
                 }
             }
         }
-
+        
         function toggle(shop){
             const existing = route.find(r => r.shop === shop);
             if (existing){
@@ -163,6 +164,13 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
             }
         }
 
+        function depart(){
+            destination = route[nextStop];
+            currentStop = null;
+            trader.trading = false;
+            trader.blocked = false;
+        }
+
         function tryCompleteTransaction(){
             const transaction = currentStop.transaction;
             const shop = currentStop.shop;
@@ -170,13 +178,10 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
             if (!agreement.valid){
                 currentTransactionTime = 0;
                 trader.blocked = true;
-                return; 
+                return false; 
             }
-            
             transaction.commit(trader, shop, agreement);
-            destination = route[nextStop];
-            trader.trading = false;
-            trader.blocked = false;
+            return true;
         }
 
         function supply(product) {
@@ -191,7 +196,10 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
                 capacity: weight / trader.maxWeight,
                 inventory: inventory,
                 fillStyle: getStyle(),
-                stops: getStops()
+                stops: getStops(),
+                currentStop: currentStop,
+                nextStop: route[nextStop],
+                destination: destination
             };
         }
 

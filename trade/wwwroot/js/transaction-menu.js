@@ -63,7 +63,7 @@ app.register("TransactionMenu", ["ButtonCollection", "Button", "Purchase", funct
                 
                 const summary = trade.summary(_stop.shop);
                 context.fillStyle = "#444";
-                context.fillText(summary.verb + " " + summary.name + " for " + summary.price + "b", this.x + 5, _y);
+                context.fillText(summary.description, this.x + 5, _y);
                 
                 _y += height;
                 this.height += height;
@@ -77,7 +77,7 @@ app.register("TransactionMenu", ["ButtonCollection", "Button", "Purchase", funct
         }
 
         function addTrade(){
-            _stop.transaction.addTrade(new Purchase(_stop.shop.getPurchaseProduct()));
+            _stop.transaction.addTrade(_stop.shop.newTrade());
         }
 
         function selectTrade(callback){

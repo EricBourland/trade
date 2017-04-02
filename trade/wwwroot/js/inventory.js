@@ -8,6 +8,7 @@ app.register("Inventory", [function() {
         this.setQuantity = setQuantity;
         this.snapshot = snapshot;
         this.all = all;
+        this.available = available;
         this.copy = copy;
 
         const items = {};
@@ -65,6 +66,10 @@ app.register("Inventory", [function() {
 
         function all() {
             return Object.values(items);
+        }
+
+        function available() {
+            return all().filter(i => i.quantity > 0);
         }
     }
 }]);

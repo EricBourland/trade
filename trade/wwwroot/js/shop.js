@@ -1,4 +1,4 @@
-app.register("Shop", ["Inventory", "getMouseState", function (Inventory, getMouseState) {
+app.register("Shop", ["Location", "Inventory", "Purchase", "getMouseState", function (Location, Inventory, Purchase, getMouseState) {
     return Shop;
 
     function Shop(x, y, name, bits) {
@@ -16,7 +16,9 @@ app.register("Shop", ["Inventory", "getMouseState", function (Inventory, getMous
         this.accept = accept;
         this.prices = prices;
         this.listing = listing;
-        this.selling = selling;
+        this.available = available;
+        this.newTrade = newTrade;
+        this.table = table;
         this.getPurchaseProduct = getPurchaseProduct;
         this.getSaleProduct = getSaleProduct;
         
@@ -31,6 +33,7 @@ app.register("Shop", ["Inventory", "getMouseState", function (Inventory, getMous
         const inventory = new Inventory();
         const restock = {};
         const consume = {};
+        const location = new Location(x, y);
         let state = {};
 
         function draw(context, selectedTrader) {
@@ -97,27 +100,15 @@ app.register("Shop", ["Inventory", "getMouseState", function (Inventory, getMous
         }
 
         function directions(tx, ty){
-            const v = {
-                x: x - tx,
-                y: y - ty
-            };
-            
-            const magnitude = Math.sqrt(v.x*v.x + v.y*v.y);
-            return {
-                x: x,
-                y: y,
-                dx: v.x / magnitude,
-                dy: v.y / magnitude,
-                distance: magnitude
-            };
+            return location.directions(tx, ty);
         }
 
         function supply(product){
             return inventory.get(product);
         }
 
-        function selling(){
-            return inventory.all().filter(i => i.quantity > 0);
+        function available() {
+            return inventory.available();
         }
 
         function stock(product, price, quantity, seconds) {
@@ -195,6 +186,28 @@ app.register("Shop", ["Inventory", "getMouseState", function (Inventory, getMous
 
         function getSaleProduct() {
             return Object.values(this.orders)[0].product;
+        }
+
+        function newTrade() {
+            return new Purchase(getPurchaseProduct());
+        }
+
+        function table(){
+            return [
+                {
+                    title: "Product",
+                    value: p => p.product.name
+                }, {
+                    title: "Weight",
+                    value: p => p.product.weight * p.quantity + " (" + p.product.weight + ")"
+                }, {
+                    title: "Quantity",
+                    value: "quantity"
+                }, {
+                    title: "Price",
+                    value: "price"
+                }
+            ];
         }
     }
 }]);
