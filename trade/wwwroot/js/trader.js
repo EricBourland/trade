@@ -1,4 +1,4 @@
-app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
+app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inventory, getMouseState) {
     return Trader;
     
     function Trader(x, y, name) {
@@ -6,6 +6,8 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
         this.draw = draw;
         this.update = update;
         this.addStop = addStop;
+        this.removeStop = removeStop;
+        this.toggle = toggle;
         this.supply = supply;
         this.summary = summary;
         this.snapshot = snapshot;
@@ -27,14 +29,58 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
         let speed = 0;
         let weight = 0;
         let currentTransactionTime = 0;
+        let state = {};
 
-        function draw(context) {
+        function draw(context, selectedTrader) {
             context.save();
-            context.fillStyle = getStyle();
+
+            if (destination) {
+                context.save();
+                context.globalCompositeOperation = "destination-over";
+                context.lineWidth = 3;
+                context.strokeStyle = "#88cc88";
+                context.beginPath();
+                context.moveTo(x, y);
+                context.lineTo(destination.shop.x, destination.shop.y);
+                context.stroke();
+                context.restore();
+            }
+            
+            if (route.length > 1){
+                context.beginPath();
+                context.moveTo(route[0].shop.x, route[0].shop.y);
+                for (let i = 1; i < route.length; i++) {
+                    context.lineTo(route[i].shop.x, route[i].shop.y);
+                }
+                if (route.length > 2){
+                    context.closePath();
+                }
+                context.save();
+                context.globalCompositeOperation = "destination-over";
+                context.lineWidth = 2;
+                context.strokeStyle = "#eee";
+                context.stroke();
+                context.restore();
+            }
+
+            
+
             context.beginPath();
             context.arc(x, y, size, 0, Math.PI * 2);
+
+            state = getMouseState(context, state);
+            context.fillStyle = getStyle();
             context.fill();
+            if (selectedTrader === this || !state.idle){
+                context.strokeStyle = "#444";
+                context.stroke();
+            }
+
             context.restore();
+
+            if (state.clicked) {
+                app.ui.selectTrader(this);
+            }
         }
 
         function update(dt){
@@ -79,10 +125,28 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
         function addStop(shop) {
             const stop = new Stop(shop);
             route.push(stop);
-            if (!destination){
+            if (!trader.trading && !destination){
                 destination = stop;
             }
             return stop;
+        }
+
+        function removeStop(shop){
+            for (let i = route.length - 1; i >= 0; i--){
+                if (route[i].shop === shop){
+                    let removed = route.splice(i, 1);
+                    return removed[0];
+                }
+            }
+        }
+
+        function toggle(shop){
+            const existing = route.find(r => r.shop === shop);
+            if (existing){
+                removeStop(shop);
+            } else {
+                addStop(shop);
+            }
         }
 
         function arrive(dir){
@@ -103,12 +167,12 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
             const transaction = currentStop.transaction;
             const shop = currentStop.shop;
             const agreement = transaction.negotiate(trader, currentStop.shop);
-            if (!agreement.success){
+            if (!agreement.valid){
                 currentTransactionTime = 0;
                 trader.blocked = true;
                 return; 
             }
-
+            
             transaction.commit(trader, shop, agreement);
             destination = route[nextStop];
             trader.trading = false;
@@ -161,6 +225,9 @@ app.register("Trader", ["Stop", "Inventory", function(Stop, Inventory) {
         }
 
         function getStyle() {
+            if (state.pressed){
+                return "#fcee8b";
+            }
             if (trader.blocked) {
                 return "#c62828";
             }

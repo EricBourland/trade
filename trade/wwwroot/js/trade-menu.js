@@ -1,23 +1,24 @@
 app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", function(Button, ButtonCollection, Purchase, Sale) {
     return TradeMenu;
     
-    function TradeMenu(x, y, trader, shop, transaction, trade) {
+    function TradeMenu(trader, shop, transaction, trade) {
         this.draw = draw;
-        this.click = click;
         this.setTrade = setTrade;
 
-        this.x = x;
-        this.y = y;
+        this.x = 0;
+        this.y = 0;
+
+        const lineHeight = 20;
+        
+        let _setTrade = () => { };
 
         const buttons = new ButtonCollection().click(product => {
-            _click();
             trade.product = product;
         });
-        const buyButton  = new Button("Buy", x, y + 5, 35, 19).click(buy);
-        buyButton.textOffset = 3;
-        
-        const sellButton = new Button("Sell", x + 45, y + 5, 35, 19).click(sell);
-        const removeButton = new Button("Remove", x + 90, y + 5, 60, 19).click(remove);
+        const buyButton = new Button("Buy", 0, 0, 35, 19).click(buy);
+        const sellButton = new Button("Sell", 0, 0, 35, 19).click(sell);
+
+        const actions = [buyButton, sellButton];
 
         let sale = false;
         let purchase = false;
@@ -31,17 +32,18 @@ app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", fun
             sale = true;
             sellButton.styles.fillStyle = "#eee";
         }
-
-        let _click = () => {};
-        let _setTrade = () => {};
-
+        
         function draw(context) {
             context.font = "18px sans-serif";
-            context.fillText("Trade", this.x, this.y);
-
-            buyButton.draw(context);
-            sellButton.draw(context);
-            removeButton.draw(context);
+            context.fillText("Trade", this.x, this.y + lineHeight);
+            
+            let offsetX = this.x;
+            for (let action of actions){
+                action.x = offsetX;
+                action.y = this.y + lineHeight + 5;
+                action.draw(context);
+                offsetX += 45;
+            }
             
             let products = [];
             if (sale) {
@@ -52,12 +54,12 @@ app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", fun
             }
 
             context.font = "14px sans-serif";
-            let _y = this.y + 40;
+            let _y = this.y + 3 * lineHeight;
             for (let product of products){
                 const button = buttons.get(product.product);
                 button.x = this.x;
                 button.y = _y - 15;
-                button.width = 150;
+                button.width = this.width;
                 button.height = 19;
                 button.styles.fillStyle = null;
                 if (product.product === trade.product){
@@ -71,44 +73,29 @@ app.register("TradeMenu", ["Button", "ButtonCollection", "Purchase", "Sale", fun
             }
         }
 
-        function click(callback){
-            _click = callback;
-            return this;
-        }
-
         function setTrade(callback){
             _setTrade = callback;
             return this;
         }
 
         function buy(){
-            _click();
             if (trade instanceof Purchase){
                 return;
             }
             const product = shop.getPurchaseProduct();
             const purchase = new Purchase(product);
-            transaction.remove(trade);
-            transaction.addTrade(purchase);
+            transaction.swap(trade, purchase);
             _setTrade(purchase);
         }
 
         function sell() {
-            _click();
             if (trade instanceof Sale){
                 return;
             }
             const product = shop.getSaleProduct();
             const sale = new Sale(product);
-            transaction.remove(trade);
-            transaction.addTrade(sale);
+            transaction.swap(trade, sale);
             _setTrade(sale);
-        }
-
-        function remove(){
-            _click();
-            transaction.remove(trade);
-            _setTrade(null);
         }
     }
 }]);

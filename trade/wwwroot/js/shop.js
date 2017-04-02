@@ -1,9 +1,11 @@
-app.register("Shop", ["Inventory", function (Inventory) {
+app.register("Shop", ["Inventory", "getMouseState", function (Inventory, getMouseState) {
     return Shop;
 
     function Shop(x, y, name, bits) {
-
+        this.x = x;
+        this.y = y;
         this.name = name;
+        this.bits = bits;
         this.draw = draw;
         this.update = update;
         this.stock = stock;
@@ -21,19 +23,43 @@ app.register("Shop", ["Inventory", function (Inventory) {
         this.orders = {};
         
         const size = 24;
+        const pressedFillStyle = "#81d4fa";
         const fillStyle = "#64b5f6";
+        const strokeStyle = "#000"
         const textStyle = "#444";
         const font = "14px sans-serif";
         const inventory = new Inventory();
         const restock = {};
+        const consume = {};
+        let state = {};
 
-        function draw(context) {
+        function draw(context, selectedTrader) {
             context.save();
-            context.fillStyle = fillStyle;
+            
             context.beginPath();
             context.rect(x - size/2, y - size/2, size, size);
-            context.fill();
+            context.fillStyle = fillStyle;
 
+            let stroke = false;
+            if (selectedTrader){
+                state = getMouseState(context, state);
+                if (state.pressed){
+                    context.fillStyle = pressedFillStyle;
+                }
+                if (state.hovering || state.pressed) {
+                    context.strokeStyle = strokeStyle;
+                    stroke = true;
+                }
+                if (state.clicked){
+                    selectedTrader.toggle(this);
+                }
+            }
+            
+            context.fill();
+            if (stroke){
+                context.stroke();
+            }
+            
             context.fillStyle = textStyle;
             context.font = font;
             const text = context.measureText(name);
@@ -42,19 +68,32 @@ app.register("Shop", ["Inventory", function (Inventory) {
         }
 
         function update(dt) {
-            for (let item of Object.values(restock)) {
-                if (!item.interval) {
+            updateItems(dt, restock, updateStockQuantity);
+            updateItems(dt, consume, updateOrderQuantity);
+        }
+
+        function updateItems(dt, settings, update) {
+            for (let setting of Object.values(settings)) {
+                if (!setting.interval){
                     continue;
                 }
-                item.timer += dt;
-                if (item.timer > item.interval) {
-                    item.timer = 0;
-                    const current = inventory.get(item);
-                    if (current.quantity < item.quantity) {
-                        inventory.setQuantity(current.product, item.quantity);
-                    }
+                setting.timer += dt;
+                if (setting.timer > setting.interval) {
+                    setting.timer = 0;
+                    update(setting);
                 }
             }
+        }
+
+        function updateStockQuantity(restock) {
+            const stocked = inventory.get(restock.product);
+            if (stocked.quantity < restock.quantity) {
+                inventory.setQuantity(restock.product, restock.quantity);
+            }
+        }
+
+        function updateOrderQuantity(consume) { 
+            inventory.subtract(consume.product, consume.quantity);
         }
 
         function directions(tx, ty){
@@ -86,7 +125,7 @@ app.register("Shop", ["Inventory", function (Inventory) {
                 seconds = 0;
             }
             restock[product.id] = {
-                id: product.id,
+                product: product,
                 interval: seconds * 1000,
                 quantity: quantity,
                 timer: 0
@@ -94,22 +133,34 @@ app.register("Shop", ["Inventory", function (Inventory) {
             inventory.add(product, quantity, price);
         }
 
-        function order(product, price) {
+        function order(product, price, quantity, seconds) {
             this.orders[product.id] = {
                 product: product,
                 price: price
+            };
+            if (!quantity){
+                quantity = 1;
+            }
+            if (!seconds) {
+                seconds = 0;
+            }
+            consume[product.id] = {
+                product: product,
+                interval: seconds * 1000,
+                quantity: quantity,
+                timer: 0
             };
         }
 
         function snapshot(){
             return {
-                bits: bits,
+                bits: this.bits,
                 inventory: inventory.snapshot()
             };
         }
 
         function accept(snapshot){
-            bits = snapshot.bits;
+            this.bits = snapshot.bits;
             inventory.copy(snapshot.inventory);
         }
 

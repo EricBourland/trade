@@ -40,8 +40,6 @@
             camera.y += delta.y;
             app.refresh();
         }
-        mouse.worldX = $event.offsetX - camera.x;
-        mouse.worldY = $event.offsetY - camera.y;
     }
 
     function mouseup($event) {

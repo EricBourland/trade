@@ -11,6 +11,8 @@
 
     app.draw = draw;
 
+    let state = {};
+
     function draw() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -18,15 +20,15 @@
         context.translate(app.camera.x, app.camera.y);
 
         for (let shop of app.shops) {
-            shop.draw(context);
+            shop.draw(context, state.selectedTrader);
         }
 
         for (let trader of app.traders) {
-            trader.draw(context);
+            trader.draw(context, state.selectedTrader);
         }
 
         context.restore();
-        app.ui.draw(context);
+        state = app.ui.draw(context);
     }
 
 })(app);

@@ -5,6 +5,7 @@ app.register("Transaction", [function() {
     function Transaction() {
         this.addTrade = addTrade;
         this.remove = remove;
+        this.swap = swap;
         this.negotiate = negotiate;
         this.commit = commit;
         this.getTradeSummary = getTradeSummary;
@@ -18,6 +19,11 @@ app.register("Transaction", [function() {
 
         function remove(trade){
             this.trades.splice(this.trades.indexOf(trade), 1);
+        }
+
+        function swap(existing, trade){
+            const index = this.trades.indexOf(existing);
+            this.trades[index] = trade;
         }
 
         function negotiate(trader, shop) {
@@ -51,7 +57,10 @@ app.register("Transaction", [function() {
 
             return {
                 snapshot: state,
-                success: changed && valid(state, trader)
+                valid: valid(state, trader),
+                changed: changed,
+                empty: this.trades.length === 0,
+                void: steps.length === 0
             };
         }
 

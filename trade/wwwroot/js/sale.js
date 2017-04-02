@@ -13,7 +13,8 @@ app.register("Sale", [function() {
 
         function calculate(trader, shop) {
             const quantity = trader.supply(this.product);
-            const price = shop.prices(this.product).sell;
+            const prices = shop.prices(this.product);
+            const price = prices.sell || prices.buy;
             
             return {
                 weight: this.product.weight * quantity,
@@ -27,7 +28,7 @@ app.register("Sale", [function() {
         function apply(trader, shop, deal, state) {
             const balance = deal.price * deal.quantity;
             state.shop.bits -= balance;
-            state.shop.inventory.add(this.product, deal.quantity);
+            state.shop.inventory.add(this.product, deal.quantity, deal.price);
             state.trader.bits += balance;
             state.trader.weight -= deal.weight;
             state.trader.inventory.subtract(this.product, deal.quantity);

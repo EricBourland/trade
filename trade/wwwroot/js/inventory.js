@@ -27,7 +27,14 @@ app.register("Inventory", [function() {
         }
 
         function subtract(product, quantity){
-            items[product.id].quantity -= quantity;
+            const item = items[product.id];
+            if (!item) {
+                return;
+            }
+            item.quantity -= quantity;
+            if (item.quantity < 0) {
+                item.quantity = 0;
+            }
         }
 
         function setQuantity(product, quantity){

@@ -1,13 +1,11 @@
-app.register("Button", [function() {
+app.register("Button", ["getMouseState", function(getMouseState) {
     return Button;
 
     function Button(text, x, y, width, height, styles) {
         this.draw = draw;
         this.click = click;
 
-        this.idle = true;
-        this.hovering = false;
-        this.pressed = false;
+        this.state = {};
         this.text = text;
         this.x = x;
         this.y = y;
@@ -20,6 +18,7 @@ app.register("Button", [function() {
             pressFillStyle: "#ddd",
             fontSize: 14,
             fontFamily: "sans-serif",
+            fontStyle: "normal",
             textFillStyle: "#444"
         }, styles);
 
@@ -31,37 +30,35 @@ app.register("Button", [function() {
         }
 
         function draw(context) {
-            context.beginPath();
-            context.rect(this.x, this.y, this.width, this.height);
-            
-            if (context.isPointInPath(app.mouse.offsetX, app.mouse.offsetY)) {
-                if (app.mouse.down) {
-                    if (this.hovering) {
-                        this.pressed = true;
-                        this.hovering = false;
-                    }
-                } else {
-                    if (this.pressed){
-                        _click();
-                        this.pressed = false;
-                    }
-                    this.hovering = true;
-                    this.idle = false;
+            let measure;
+            if (this.text){
+                context.font = this.styles.fontStyle + " " + this.styles.fontSize + "px " + this.styles.fontFamily;
+                measure = context.measureText(this.text);
+                if (!this.width) {
+                    this.width = measure.width + 10;
+                }
+                if (!this.height){
+                    this.height = this.styles.fontSize + 6;
                 }
             }
-            else {
-                this.idle = true;
-                this.hovering = this.pressed = false;
+
+            context.beginPath();
+            context.rect(this.x, this.y, this.width, this.height);
+
+            this.state = getMouseState(context, this.state);
+
+            if (this.show && !this.show(this)){
+                return;
             }
 
             let fillStyle = null;
-            if (this.idle){
+            if (this.state.idle){
                 fillStyle = this.styles.fillStyle;
             }
-            else if (this.hovering){
+            else if (this.state.hovering){
                 fillStyle = this.styles.hoverFillStyle;
             }
-            else if (this.pressed){
+            else if (this.state.pressed){
                 fillStyle = this.styles.pressFillStyle;
             }
 
@@ -71,10 +68,18 @@ app.register("Button", [function() {
             }
 
             if (this.text){
-                const measure = context.measureText(this.text);
-                context.font = this.styles.fontSize + "px " + this.styles.fontFamily;
                 context.fillStyle = this.styles.textFillStyle;
-                context.fillText(this.text, this.x + this.textOffset + (this.width - measure.width) / 2, this.y + (this.height + this.styles.fontSize) / 2.2);
+                let x;
+                if (this.styles.alignment === "left"){
+                    x = this.x + this.textOffset;
+                } else {
+                    x = this.x + this.textOffset + (this.width - measure.width) / 2;
+                }
+                context.fillText(this.text, x, this.y + (this.height + this.styles.fontSize) / 2.2);
+            }
+
+            if (this.state.clicked){
+                _click();
             }
         }
     }

@@ -1,43 +1,62 @@
 app.register("TransactionMenu", ["ButtonCollection", "Button", "Purchase", function(ButtonCollection, Button, Purchase) {
     return TransactionMenu;
 
-    function TransactionMenu(x, y, _stop) {
+    function TransactionMenu(_stop) {
         this.draw = draw;
-        this.click = click;
+        this.selectTrade = selectTrade;
+        this.removeTrade = removeTrade;
 
-        this.x = x;
-        this.y = y;
-        const height = 20;
-        const buttons = new ButtonCollection().click(transaction => {
-            _click(transaction);
-        });
-        const addButton = new Button("Add", x + 130, y - 15, 60, 20, {
-            fillStyle: "#eee",
-            hoverFillStyle: "#ddd",
-            pressFillStyle: "#ccc"
-        }).click(() => {
-            addTrade();
-            _click();
-        });
-
-        let _click = () => {};
+        this.x = 0;
+        this.y = 0;
+        this.width = 0;
         
+        let _selectTrade = () => {};
+        let _removeTrade = () => {};
+
+        const height = 20;
+        const buttons = new ButtonCollection().click(trade => {
+            _selectTrade(trade);
+        });
+
+        const removeButtons = new ButtonCollection().click(trade => {
+            _removeTrade(trade);
+        })
+        
+        const addButton = new Button("Add Transaction...").click(() => {
+            addTrade();
+        });
+        addButton.textOffset = 5;
+        addButton.styles.alignment = "left";
+        addButton.styles.fontStyle = "italic";
+
         function draw(context, selectedTrade) {    
             context.save();
             context.font = "18px sans-serif";
-            context.fillText("Transactions", this.x, this.y);
+            context.fillText("Transactions", this.x, this.y + height);
             context.restore();
             
-            let _y = this.y + 20;
+            this.height = 20;
+
+            let _y = this.y + 2 * height;
             for (let trade of _stop.transaction.trades) {
 
                 const button = buttons.get(trade);
                 button.x = this.x; 
                 button.y = _y - height + 5;
-                button.width = 150;
+                button.width = this.width - 25;
                 button.height = height - 1;
                 button.styles.fillStyle = null;
-                if (trade === selectedTrade) {
+
+                const removeButton = removeButtons.get(trade);
+                removeButton.width = 20;
+                removeButton.height = height - 1;
+                removeButton.x = this.x + this.width - removeButton.width;
+                removeButton.y = _y - height + 5;
+                removeButton.text = "X";
+                removeButton.show = rb => !rb.state.idle || button.state.hovering;
+                removeButton.draw(context);
+
+                if (trade === selectedTrade || !removeButton.state.idle) {
                     button.styles.fillStyle = "#eee";
                 }
                 button.draw(context);
@@ -47,20 +66,29 @@ app.register("TransactionMenu", ["ButtonCollection", "Button", "Purchase", funct
                 context.fillText(summary.verb + " " + summary.name + " for " + summary.price + "b", this.x + 5, _y);
                 
                 _y += height;
+                this.height += height;
             }
 
-            //addButton.draw(context);
+            addButton.x = this.x;
+            addButton.y = _y - 15;
+            addButton.width = this.width - 25;
+            addButton.height = 19;
+            addButton.draw(context);
         }
 
         function addTrade(){
-            console.log(_stop.transaction);
-            console.log(_stop.shop.listing());
-            //_stop.transaction.addTrade(new Purchase());
+            _stop.transaction.addTrade(new Purchase(_stop.shop.getPurchaseProduct()));
         }
 
-        function click(callback){
-            _click = callback;
+        function selectTrade(callback){
+            _selectTrade = callback;
             return this;
         }
+
+        function removeTrade(callback) {
+            _removeTrade = callback;
+            return this;
+        }
+        
     }
 }]);

@@ -25,7 +25,14 @@ const app = (function() {
                     skipped = true;
                     continue;
                 }
-                const result = r.registration[r.registration.length - 1].apply(null, args);
+                
+                let builder = r.registration;
+                if (Array.isArray(builder)){
+                    builder = r.registration[r.registration.length - 1];
+                }
+                
+                const result = builder.apply(null, args);
+                
                 if (!result) {
                     throw new Error("Registration failed: " + r.name);
                 }

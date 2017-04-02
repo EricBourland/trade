@@ -1,16 +1,15 @@
-app.register("CargoMenu", ["Table", function(Table) {
-    return CargoMenu;
+app.register("ShopMenu", ["Table", function(Table) {
+    return ShopMenu;
 
-    function CargoMenu(trader) {
+    function ShopMenu(shop) {
         this.draw = draw;
-
+        
         this.x = 0;
         this.y = 0;
         this.width = 0;
         this.height = 0;
 
         const lineHeight = 20;
-
         const table = new Table([
             {
                 title: "Product",
@@ -18,27 +17,29 @@ app.register("CargoMenu", ["Table", function(Table) {
             },
             {
                 title: "Weight",
-                value: p => (p.product.weight * p.quantity + " (" + p.product.weight + ")")
-            },
-            {
+                value: p => p.product.weight * p.quantity + " (" + p.product.weight + ")"
+            }, {
                 title: "Quantity",
                 value: "quantity"
+            }, {
+                title: "Price",
+                value: "price"
             }
         ]);
-
+        
         function draw(context) {
-            this.height = lineHeight;
-            context.save();
             context.font = "18px sans-serif";
-            context.fillText(trader.name, this.x, this.y + lineHeight);
-
+            context.fillText(shop.name, this.x, this.y + lineHeight);
+            const bits = shop.bits + "b";
+            const bitMeasure = context.measureText(bits);
+            context.fillText(bits, this.x + this.width - bitMeasure.width, this.y + lineHeight);
             context.font = "14px sans-serif";
+
             table.x = this.x;
             table.y = this.y + lineHeight;
             table.width = this.width;
-            table.draw(context, trader.cargo());
+            table.draw(context, shop.selling());
 
-            context.restore();
         }
     }
 }]);
