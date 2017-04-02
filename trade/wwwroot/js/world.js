@@ -1,7 +1,8 @@
-app.run(["Shop", "Trader", "Purchase", "Sale", function(Shop, Trader, Purchase, Sale) {
+app.run(["Shop", "Trader", "TradePost", function(Shop, Trader, TradePost) {
 
     const shops = [];
     const traders = [];
+    const posts = [];
 
     shops.push(new Shop(125, 70, "The Bob Factory", 10));
     shops.push(new Shop(645, 160, "Nick's Knacks", 20));
@@ -13,7 +14,10 @@ app.run(["Shop", "Trader", "Purchase", "Sale", function(Shop, Trader, Purchase, 
 
     traders.push(new Trader(94, 175, "TR-995"));
 
+    posts.push(new TradePost("Jack's Junkyard", 350, 285));
+
     app.shops = shops;
     app.traders = traders;
+    app.posts = posts;
 
 }]);

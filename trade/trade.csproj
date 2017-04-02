@@ -12,6 +12,7 @@
     <Content Include="wwwroot\js\get-mouse-state.js" />
     <Content Include="wwwroot\js\shop-menu.js" />
     <Content Include="wwwroot\js\table.js" />
+    <Content Include="wwwroot\js\trade-post.js" />
   </ItemGroup>
 
   <ItemGroup>

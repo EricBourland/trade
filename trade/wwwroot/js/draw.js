@@ -19,6 +19,10 @@
         context.save();
         context.translate(app.camera.x, app.camera.y);
 
+        for (let post of app.posts) {
+            post.draw(context, state.selectedTrader);
+        }
+
         for (let shop of app.shops) {
             shop.draw(context, state.selectedTrader);
         }
