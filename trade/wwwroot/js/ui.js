@@ -1,138 +1,152 @@
-app.run(["TraderMenu", "CargoMenu", "RouteMenu", "ShopMenu", "TransactionMenu", "TradeMenu", function(TraderMenu, CargoMenu, RouteMenu, ShopMenu, TransactionMenu, TradeMenu) {
+app.register("ui", ["TraderMenu", "CargoMenu", "RouteMenu", "ShopMenu", "TransactionMenu", "TradeMenu", function(TraderMenu, CargoMenu, RouteMenu, ShopMenu, TransactionMenu, TradeMenu) {
 
-    const traders = new TraderMenu(app.traders).click(select);
-    traders.x = 10;
-    traders.y = 10;
-    traders.width = 300;
-    let _deselect = false;
-    let cargo = null;
-    let stock = null;
-    let stops = null;
-    let trade = null;
-    let trades = null;
-    let deferred = null;
+    return new Ui();
 
-    let selectedTrader = null;
-    let selectedShop = null;
-    let selectedTransaction = null;
-    let selectedTrade = null;
+    function Ui () {
+        this.draw = draw;
+        this.selectTrader = selectTrader;
+        this.selectShop = selectShop;
 
-    app.ui = {
-        draw: draw,
-        selectTrader: select
-    };
+        const traders = new TraderMenu(app.traders).click(selectTrader);
+        traders.x = 10;
+        traders.y = 10;
+        traders.width = 300;
+        let _deselect = false;
+        let cargo = null;
+        let stock = null;
+        let stops = null;
+        let trade = null;
+        let trades = null;
+        let deferred = null;
 
-    function draw(context) {
+        let selectedTrader = null;
+        let selectedShop = null;
+        let selectedTransaction = null;
+        let selectedTrade = null;
 
-        context.save();
-        context.font = "18px sans-serif";
+        let stockWidth = 400;
+        let cargoX = null;
+        let cargoWidth = 400;
+        
+        Object.defineProperty(this, "selectedTrader", {get: () => selectedTrader});
+        Object.defineProperty(this, "selectedShop", {get: () => selectedShop});
 
-        const str = app.bits + "b";
-        const measure = context.measureText(str);
-        context.fillText(str, context.canvas.width - measure.width - 15, 30);
+        function draw(context) {
 
-        traders.draw(context, selectedTrader);
+            cargoX = context.canvas.width - cargoWidth - 10;
 
-        if (selectedTrader) {
-            stops.draw(context, selectedShop);
+            context.save();
+            context.font = "18px sans-serif";
 
-            cargo.x = context.canvas.width - cargo.width - 10;
-            cargo.draw(context);
+            const str = app.bits + "b";
+            const measure = context.measureText(str);
+            context.fillText(str, context.canvas.width - measure.width - 15, 30);
+
+            traders.draw(context, selectedTrader);
+
+            if (selectedTrader) {
+                stops.draw(context, selectedShop);
+                cargo.x = cargoX;
+                cargo.draw(context);
+            }
+
+            if (trades) {
+                trades.draw(context, selectedTrade);
+            }
+            if (stock){
+                stock.draw(context);
+            }
+
+            if (trade) {
+                trade.draw(context);
+            }
+
+            context.restore();
+
+            if (_deselect && !app.clicked && !app.mouse.down){
+                deselect();
+            }
+            _deselect = app.mouse.down;
+            app.clicked = null;
+
+            if (deferred) {
+                deferred();
+                deferred = null;
+            }
         }
 
-        if (selectedShop) {
-            trades.draw(context, selectedTrade);
-
-            stock.x = cargo.x - stock.width - 30;
-            stock.draw(context);
+        function selectShop(shop) {
+            stock = new ShopMenu(shop);
+            stock.x = cargoX - 10 - stockWidth;
+            stock.y = 10;
+            stock.width = stockWidth;
+            
+            selectedShop = shop;
         }
 
-        if (trade) {
-            trade.draw(context);
+        function selectTrader(trader){
+            cargo = new CargoMenu(trader);
+            cargo.y = 10;
+            cargo.width = 400;
+            stops = new RouteMenu(trader)
+                .selectStop(selectStop)
+                .removeStop(removeStop);
+            stops.x = traders.width + traders.x + 10;
+            stops.y = 10;
+            stops.width = 180;
+            selectedTrader = trader;
         }
 
-        context.restore();
-
-        if (_deselect && !app.clicked && !app.mouse.down){
-            deselect();
+        function selectStop(shop, _stop) {
+            trades = new TransactionMenu(_stop)
+                .removeTrade(removeTrade)
+                .selectTrade(selectTrade);
+            trades.width = 180;
+            trades.x = stops.x + stops.width + 10;
+            trades.y = 10;
+            selectShop(shop);
+            selectedTransaction = _stop.transaction;
+            trade = null;
+            selectedTrade = null;
         }
-        _deselect = app.mouse.down;
-        app.clicked = null;
 
-        if (deferred) {
-            deferred();
-            deferred = null;
+        function removeTrade(_trade) {
+            selectedTransaction.remove(_trade);
+            selectedTrade = null;
+            trade = null;
         }
 
-        return {
-            selectedTrader: selectedTrader
-        };
-    }
+        function selectTrade(_trade) {
+            trade = new TradeMenu(selectedTrader, selectedShop, selectedTransaction, _trade)
+                .setTrade(selectTrade);
+            trade.x = trades.x + trades.width + 10;
+            trade.y = 10;
+            trade.width = 150;
+            selectedTrade = _trade;
+        }
 
-    function select(trader){
-        cargo = new CargoMenu(trader);
-        cargo.y = 10;
-        cargo.width = 400;
-        stops = new RouteMenu(trader)
-            .selectStop(selectShop)
-            .removeStop(removeStop);
-        stops.x = traders.width + traders.x + 10;
-        stops.y = 10;
-        stops.width = 180;
-        selectedTrader = trader;
-    }
+        function removeStop(shop){
+            selectedTrader.removeStop(shop);
+            defer(function(){
+                selectedShop = null;
+                trades = null;
+                trade = null;
+                stock = null;
+            });
+        }
 
-    function selectShop(shop, _stop) {
-        trades = new TransactionMenu(_stop)
-            .removeTrade(removeTrade)
-            .selectTrade(selectTrade);
-        trades.width = 180;
-        trades.x = stops.x + stops.width + 10;
-        trades.y = 10;
-        stock = new ShopMenu(shop);
-        stock.width = 400;
-        stock.y = 10;
-        selectedTransaction = _stop.transaction;
-        selectedShop = shop;
-        trade = null;
-        selectedTrade = null;
-    }
+        function defer(func){
+            deferred = func;
+        }
 
-    function removeTrade(_trade) {
-        selectedTransaction.remove(_trade);
-        selectedTrade = null;
-        trade = null;
-    }
-
-    function selectTrade(_trade) {
-        trade = new TradeMenu(selectedTrader, selectedShop, selectedTransaction, _trade)
-            .setTrade(selectTrade);
-        trade.x = trades.x + trades.width + 10;
-        trade.y = 10;
-        trade.width = 150;
-        selectedTrade = _trade;
-    }
-
-    function removeStop(shop){
-        selectedTrader.removeStop(shop);
-        defer(function(){
+        function deselect(){
+            selectedTrader = null;
             selectedShop = null;
+            stops = null;
             trades = null;
             trade = null;
             stock = null;
-        });
-    }
-    
-    function defer(func){
-        deferred = func;
-    }
+        }
 
-    function deselect(){
-        selectedTrader = null;
-        selectedShop = null;
-        stops = null;
-        trades = null;
-        trade = null;
-        stock = null;
     }
 }]);

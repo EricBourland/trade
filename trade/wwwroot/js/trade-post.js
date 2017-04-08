@@ -2,6 +2,7 @@ app.register("TradePost", ["Location", "Inventory", "Deposit", "getMouseState", 
     return TradePost;
 
     function TradePost(name, x, y) {
+        this.update = update;
         this.draw = draw;
         this.directions = directions;
         this.available = available;
@@ -20,6 +21,10 @@ app.register("TradePost", ["Location", "Inventory", "Deposit", "getMouseState", 
         const location = new Location(x, y);
         const inventory = new Inventory();
         let state = {};
+
+        function update(dt) {
+            
+        }
 
         function draw(context, selectedTrader) {
             context.beginPath();

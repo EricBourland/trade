@@ -5,7 +5,12 @@ const app = (function() {
 
     $(document).ready(function() {
         let skipped;
+        let progressed = true;
         do {
+            if (!progressed){
+                throw new Error("Dependency registration infinite loop detected", registered.filter(r => !r.registered));
+            }
+            progressed = false;
             skipped = false;
             for (let r of registered) {
                 if (r.registered){
@@ -37,6 +42,7 @@ const app = (function() {
                     throw new Error("Registration failed: " + r.name);
                 }
                 app[r.name] = result;
+                progressed = true;
                 r.registered = true;
             }
         } while(skipped);

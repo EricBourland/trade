@@ -36,7 +36,7 @@ app.register("Shop", ["Location", "Inventory", "Purchase", "getMouseState", func
         const location = new Location(x, y);
         let state = {};
 
-        function draw(context, selectedTrader) {
+        function draw(context, selectedShop) {
             context.save();
             
             context.beginPath();
@@ -44,20 +44,16 @@ app.register("Shop", ["Location", "Inventory", "Purchase", "getMouseState", func
             context.fillStyle = fillStyle;
 
             let stroke = false;
-            if (selectedTrader){
-                state = getMouseState(context, state);
-                if (state.pressed){
-                    context.fillStyle = pressedFillStyle;
-                }
-                if (state.hovering || state.pressed) {
-                    context.strokeStyle = strokeStyle;
-                    stroke = true;
-                }
-                if (state.clicked){
-                    selectedTrader.toggle(this);
-                }
-            }
             
+            state = getMouseState(context, state);
+            if (state.pressed){
+                context.fillStyle = pressedFillStyle;
+            }
+            if (state.hovering || state.pressed || selectedShop === this) {
+                context.strokeStyle = strokeStyle;
+                stroke = true;
+            }
+
             context.fill();
             if (stroke){
                 context.stroke();
@@ -70,9 +66,12 @@ app.register("Shop", ["Location", "Inventory", "Purchase", "getMouseState", func
             context.restore();
         }
 
-        function update(dt) {
+        function update(dt, ui) {
             updateItems(dt, restock, updateStockQuantity);
             updateItems(dt, consume, updateOrderQuantity);
+            if (state.clicked){
+                ui.selectShop(this);
+            }
         }
 
         function updateItems(dt, settings, update) {

@@ -1,4 +1,4 @@
-(function(app) {
+app.register("draw", ["camera", "ui", "posts", "shops", "traders", function(camera, ui, posts, shops, traders) {
     const canvas = document.getElementById("trade");
     canvas.width = canvas.parentElement.offsetWidth;
     canvas.height = canvas.parentElement.offsetHeight;
@@ -9,30 +9,28 @@
         canvas.height = canvas.parentElement.offsetHeight;
     };
 
-    app.draw = draw;
-
-    let state = {};
+    return draw;
 
     function draw() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         
         context.save();
-        context.translate(app.camera.x, app.camera.y);
+        context.translate(camera.x, camera.y);
 
-        for (let post of app.posts) {
-            post.draw(context, state.selectedTrader);
+        for (let post of posts) {
+            post.draw(context);
         }
 
-        for (let shop of app.shops) {
-            shop.draw(context, state.selectedTrader);
+        for (let shop of shops) {
+            shop.draw(context, ui.selectedShop);
         }
 
-        for (let trader of app.traders) {
-            trader.draw(context, state.selectedTrader);
+        for (let trader of traders) {
+            trader.draw(context, ui.selectedTrader);
         }
 
         context.restore();
-        state = app.ui.draw(context);
+        ui.draw(context);
     }
 
-})(app);
+}]);

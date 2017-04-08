@@ -77,13 +77,9 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
             }
 
             context.restore();
-
-            if (state.clicked) {
-                app.ui.selectTrader(this);
-            }
         }
 
-        function update(dt){
+        function update(dt, ui){
             if (this.trading){
                 currentTransactionTime += dt;
                 if (currentTransactionTime > this.transactionTime) {
@@ -120,6 +116,10 @@ app.register("Trader", ["Stop", "Inventory", "getMouseState", function(Stop, Inv
 
                 x += dir.dx * dt * speed * drag;
                 y += dir.dy * dt * speed * drag;
+            }
+
+            if (state.clicked) {
+                ui.selectTrader(this);
             }
         }
 
