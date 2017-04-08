@@ -1,4 +1,4 @@
-app.register("TradePost", ["Location", "Inventory", "Deposit", "getMouseState", function(Location, Inventory, Deposit, getMouseState) {
+app.register("TradePost", ["Location", "Inventory", "Deposit", "getMouseState", "ui", function(Location, Inventory, Deposit, getMouseState, ui) {
     return TradePost;
 
     function TradePost(name, x, y) {
@@ -23,10 +23,12 @@ app.register("TradePost", ["Location", "Inventory", "Deposit", "getMouseState", 
         let state = {};
 
         function update(dt) {
-            
+            if (state.clicked){
+                ui.selectShop(this);
+            }
         }
 
-        function draw(context, selectedTrader) {
+        function draw(context, selectedShop) {
             context.beginPath();
             context.rect(x - size / 2, y - size / 2, size, size);
             context.fillStyle = fillStyle;
@@ -34,19 +36,15 @@ app.register("TradePost", ["Location", "Inventory", "Deposit", "getMouseState", 
             state = getMouseState(context, state);
 
             let stroke = false;
-            if (selectedTrader) {
-                if (!state.idle) {
-                    context.strokeStyle = "#000";
-                    stroke = true;
-                }
-                if (state.pressed) {
-                    context.fillStyle = pressedFillStyle;
-                }
-                if (state.clicked) {
-                    selectedTrader.addStop(this);
-                }
+            
+            if (!state.idle || selectedShop === this) {
+                context.strokeStyle = "#000";
+                stroke = true;
             }
-
+            if (state.pressed) {
+                context.fillStyle = pressedFillStyle;
+            }
+            
             context.fill();
             if (stroke) {
                 context.stroke();

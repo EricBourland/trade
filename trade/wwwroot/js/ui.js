@@ -90,6 +90,7 @@ app.register("ui", ["TraderMenu", "CargoMenu", "RouteMenu", "ShopMenu", "Transac
             cargo.width = 400;
             stops = new RouteMenu(trader)
                 .selectStop(selectStop)
+                .addStop(addStop)
                 .removeStop(removeStop);
             stops.x = traders.width + traders.x + 10;
             stops.y = 10;
@@ -123,6 +124,10 @@ app.register("ui", ["TraderMenu", "CargoMenu", "RouteMenu", "ShopMenu", "Transac
             trade.y = 10;
             trade.width = 150;
             selectedTrade = _trade;
+        }
+
+        function addStop() {
+            selectedTrader.addStop(selectedShop);
         }
 
         function removeStop(shop){

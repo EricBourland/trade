@@ -1,5 +1,5 @@
 app.register("getMouseState", function() {
-    return function (context, state, target) {
+    return function (context, state) {
         const result = {
             clicked: false
         };

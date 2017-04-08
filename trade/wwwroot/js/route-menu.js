@@ -1,9 +1,10 @@
-app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
+app.register("RouteMenu", ["Button", "ButtonCollection", function(Button, ButtonCollection) {
     return RouteMenu;
 
     function RouteMenu(trader) {
         this.draw = draw;
         this.selectStop = selectStop;
+        this.addStop = addStop;
         this.removeStop = removeStop;
 
         this.x = 0;
@@ -12,6 +13,7 @@ app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
         
         let _selectStop = () => { };
         let _removeStop = () => { };
+        let _addStop = () => { };
 
         const height = 20;
         const buttons = new ButtonCollection().click((shop, transaction) => {
@@ -19,9 +21,18 @@ app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
         });
 
         const removeButtons = new ButtonCollection().click(shop => {
-            _removeStop(shop)
+            _removeStop(shop);
         });
-        
+
+        const addButton = new Button(null, 0, 0, 0, height - 1, {
+            fontStyle: "italic",
+            alignment: "left"
+        }).click(() => {
+            _addStop();
+        });
+
+        addButton.textOffset = 5;
+
         function draw(context, selectedShop) {
             this.height = 20;
             context.font = "18px sans-serif";
@@ -55,8 +66,7 @@ app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
                 removeButton.y = _y - height + 5;
                 removeButton.height = height - 1;
                 removeButton.text = "X";
-                removeButton.show = rb => 
-                    !rb.state.idle || stop.shop === selectedShop || button.state.hovering;
+                removeButton.show = rb => !rb.state.idle || stop.shop === selectedShop || button.state.hovering;
 
                 removeButton.draw(context);
 
@@ -72,10 +82,23 @@ app.register("RouteMenu", ["ButtonCollection", function(ButtonCollection) {
                 _y += height;
                 this.height += height;
             }
+
+            if (selectedShop && !summary.stops.some(s => s.shop === selectedShop)) {
+                addButton.x = this.x;
+                addButton.y = _y - height + 6;
+                addButton.width = this.width;
+                addButton.text = `Add ${selectedShop.name}...`;
+                addButton.draw(context);
+            }
         }
 
-        function selectStop(callback){
+        function selectStop(callback) {
             _selectStop = callback;
+            return this;
+        }
+
+        function addStop(callback) {
+            _addStop = callback;
             return this;
         }
 

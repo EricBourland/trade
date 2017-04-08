@@ -12,7 +12,7 @@ app.register("Withdrawal", function() {
         function calculate(trader, shop) {
             let quantity = 0, weight = 0;
             if (this.product){
-                quantity = shop.supply(this.product);
+                quantity = shop.available(this.product);
                 weight = this.product.weight * quantity;
             }
             

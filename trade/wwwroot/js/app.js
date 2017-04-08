@@ -8,7 +8,9 @@ const app = (function() {
         let progressed = true;
         do {
             if (!progressed){
-                throw new Error("Dependency registration infinite loop detected", registered.filter(r => !r.registered));
+                const failed = registered.filter(r => !r.registered);
+                const msg = failed.map(f => f.name + ": [" + f.registration.slice(0, f.registration.length - 1) + "]");
+                throw new Error("Dependency registration infinite loop detected: " + msg);
             }
             progressed = false;
             skipped = false;

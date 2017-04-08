@@ -18,7 +18,7 @@ app.register("draw", ["camera", "ui", "posts", "shops", "traders", function(came
         context.translate(camera.x, camera.y);
 
         for (let post of posts) {
-            post.draw(context);
+            post.draw(context, ui.selectedShop);
         }
 
         for (let shop of shops) {
